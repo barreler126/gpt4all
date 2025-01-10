@@ -14,6 +14,9 @@ Button {
     property bool toggled: false
     property alias source: image.source
     property alias fillMode: image.fillMode
+    property alias imageWidth: image.sourceSize.width
+    property alias imageHeight: image.sourceSize.height
+    property alias bgTransform: background.transform
     contentItem: Text {
         text: myButton.text
         horizontalAlignment: Text.AlignHCenter
@@ -24,6 +27,7 @@ Button {
     }
 
     background: Item {
+        id: background
         anchors.fill: parent
         Rectangle {
             anchors.fill: parent
@@ -31,20 +35,21 @@ Button {
             visible: myButton.toggled
             border.color: myButton.toggledColor
             border.width: myButton.toggledWidth
-            radius: 6
-            opacity: .2
+            radius: 8
         }
         Image {
             id: image
             anchors.centerIn: parent
+            visible: false
+            fillMode: Image.PreserveAspectFit
             mipmap: true
-            width: 30
-            height: 30
+            sourceSize.width: 32
+            sourceSize.height: 32
         }
         ColorOverlay {
             anchors.fill: image
             source: image
-            color: myButton.hovered ? backgroundColorHovered : backgroundColor
+            color: !myButton.enabled ? theme.mutedTextColor : myButton.hovered ? backgroundColorHovered : backgroundColor
         }
     }
     Accessible.role: Accessible.Button

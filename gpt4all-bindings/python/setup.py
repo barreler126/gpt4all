@@ -45,7 +45,7 @@ def copy_prebuilt_C_lib(src_dir, dest_dir, dest_build_dir):
                 d = os.path.join(dest_dir, item)
                 shutil.copy2(s, d)
                 files_copied += 1
-            if item.endswith(lib_ext) or item.endswith('.metal'):
+            if item.endswith(lib_ext) or item.endswith('.metallib'):
                 s = os.path.join(dirpath, item)
                 d = os.path.join(dest_build_dir, item)
                 shutil.copy2(s, d)
@@ -68,16 +68,17 @@ def get_long_description():
 
 setup(
     name=package_name,
-    version="2.4.0",
+    version="2.8.3.dev0",
     description="Python bindings for GPT4All",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author="Nomic and the Open Source Community",
     author_email="support@nomic.ai",
-    url="https://gpt4all.io/",
+    url="https://www.nomic.ai/gpt4all",
     project_urls={
         "Documentation": "https://docs.gpt4all.io/gpt4all_python.html",
         "Source code": "https://github.com/nomic-ai/gpt4all/tree/main/gpt4all-bindings/python",
+        "Changelog": "https://github.com/nomic-ai/gpt4all/blob/main/gpt4all-bindings/python/CHANGELOG.md",
     },
     classifiers = [
         "Programming Language :: Python :: 3",
@@ -87,18 +88,28 @@ setup(
     python_requires='>=3.8',
     packages=find_packages(),
     install_requires=[
+        'importlib_resources; python_version < "3.9"',
+        'jinja2~=3.1',
         'requests',
         'tqdm',
-        'importlib_resources; python_version < "3.9"',
         'typing-extensions>=4.3.0; python_version >= "3.9" and python_version < "3.11"',
     ],
     extras_require={
+        'cuda': [
+            'nvidia-cuda-runtime-cu11',
+            'nvidia-cublas-cu11',
+        ],
+        'all': [
+            'gpt4all[cuda]; platform_system == "Windows" or platform_system == "Linux"',
+        ],
         'dev': [
+            'gpt4all[all]',
             'pytest',
             'twine',
             'wheel',
             'setuptools',
             'mkdocs-material',
+            'mkdocs-material[imaging]',
             'mkautodoc',
             'mkdocstrings[python]',
             'mkdocs-jupyter',

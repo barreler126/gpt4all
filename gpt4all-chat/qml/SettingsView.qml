@@ -13,9 +13,8 @@ import mysettings
 
 Rectangle {
     id: settingsDialog
-    color: theme.containerBackground
+    color: theme.viewBackground
 
-    signal downloadClicked
     property alias pageToDisplay: listView.currentIndex
 
     Item {
@@ -27,105 +26,132 @@ Rectangle {
     ListModel {
         id: stacksModel
         ListElement {
-            title: qsTr("Models")
+            title: qsTr("Application")
         }
         ListElement {
-            title: qsTr("Application")
+            title: qsTr("Model")
         }
         ListElement {
             title: qsTr("LocalDocs")
         }
     }
 
-    Item {
-        anchors.fill: parent
-        anchors.margins: 20
-        Rectangle {
-            id: stackList
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            width: 220
-            color: theme.controlBackground
-            radius: 10
+    ColumnLayout {
+        id: mainArea
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.margins: 30
+        spacing: 50
 
-            ScrollView {
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
+            spacing: 50
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignLeft
+                Layout.minimumWidth: 200
+                spacing: 5
+
+                Text {
+                    id: welcome
+                    text: qsTr("Settings")
+                    font.pixelSize: theme.fontSizeBanner
+                    color: theme.titleTextColor
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                height: 0
+            }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            Rectangle {
+                id: stackList
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.topMargin: 10
-                ScrollBar.vertical.policy: ScrollBar.AsNeeded
-                clip: true
+                width: 220
+                color: theme.viewBackground
+                radius: 10
 
-                ListView {
-                    id: listView
-                    anchors.fill: parent
-                    model: stacksModel
+                ScrollView {
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.topMargin: 10
+                    ScrollBar.vertical.policy: ScrollBar.AsNeeded
+                    clip: true
 
-                    delegate: Rectangle {
-                        id: item
-                        width: listView.width
-                        height: titleLabel.height + 10
-                        color: "transparent"
+                    ListView {
+                        id: listView
+                        anchors.fill: parent
+                        model: stacksModel
 
-                        MyButton {
-                            id: titleLabel
-                            backgroundColor: index === listView.currentIndex ? theme.buttonBackground : theme.controlBackground
-                            backgroundColorHovered: index === listView.currentIndex ? backgroundColor : theme.containerBackground
-                            borderColor: index === listView.currentIndex ? theme.accentColor : "transparent"
-                            borderWidth: index === listView.currentIndex ? 1 : 0
-                            textColor: index === listView.currentIndex ? theme.oppositeTextColor : theme.titleTextColor
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.margins: 10
-                            font.bold: index === listView.currentIndex
-                            text: title
-                            font.pixelSize: theme.fontSizeLarge
-                            onClicked: {
-                                listView.currentIndex = index
+                        delegate: Rectangle {
+                            id: item
+                            width: listView.width
+                            height: titleLabel.height + 10
+                            color: "transparent"
+
+                            MyButton {
+                                id: titleLabel
+                                backgroundColor: index === listView.currentIndex ? theme.selectedBackground : theme.viewBackground
+                                backgroundColorHovered: backgroundColor
+                                borderColor: "transparent"
+                                borderWidth: 0
+                                textColor: theme.titleTextColor
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.margins: 10
+                                font.bold: index === listView.currentIndex
+                                text: title
+                                textAlignment: Qt.AlignLeft
+                                font.pixelSize: theme.fontSizeLarge
+                                onClicked: {
+                                    listView.currentIndex = index
+                                }
                             }
                         }
                     }
                 }
             }
-        }
 
-        StackLayout {
-            id: stackLayout
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.left: stackList.right
-            anchors.right: parent.right
-            currentIndex: listView.currentIndex
+            StackLayout {
+                id: stackLayout
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.left: stackList.right
+                anchors.right: parent.right
+                currentIndex: listView.currentIndex
 
-            MySettingsStack {
-                title: qsTr("Model/Character Settings")
-                tabs: [
-                    Component { ModelSettings { } }
-                ]
-            }
+                MySettingsStack {
+                    tabs: [
+                        Component { ApplicationSettings { } }
+                    ]
+                }
 
-            MySettingsStack {
-                title: qsTr("Application General Settings")
-                tabs: [
-                    Component { ApplicationSettings { } }
-                ]
-            }
+                MySettingsStack {
+                    tabs: [
+                        Component { ModelSettings { } }
+                    ]
+                }
 
-            MySettingsStack {
-                title: qsTr("Local Document Collections")
-                tabs: [
-                    Component {
-                        LocalDocsSettings {
-                            id: localDocsSettings
-                            Component.onCompleted: {
-                                 localDocsSettings.downloadClicked.connect(settingsDialog.downloadClicked);
-                            }
-                        }
-                    }
-                ]
+                MySettingsStack {
+                    tabs: [
+                        Component { LocalDocsSettings { } }
+                    ]
+                }
             }
         }
     }
